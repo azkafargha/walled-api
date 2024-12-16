@@ -31,11 +31,12 @@ const login = async (userData) => {
     throw new Error(401);
   }
 
-  const token = generateAccessToken({ email: userData.email, id: user.rows[0].id });
+  const token = generateAccessToken({
+    email: userData.email,
+    id: user.rows[0].id,
+  });
   return token;
 };
-
-
 
 const getUserById = async (id) => {
   let user = await userRepository.findUserById(id);
@@ -44,5 +45,12 @@ const getUserById = async (id) => {
   }
   return user;
 };
-
-module.exports = { regist, login, getUserById };
+const getTransactionsByUserId = async (id) => {
+  try {
+    const transactions = await userRepository.getTransactionsByUserId(id);
+    return transactions;
+  } catch (error) {
+    throw error;
+  }
+};
+module.exports = { regist, login, getUserById, getTransactionsByUserId };

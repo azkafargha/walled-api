@@ -1,3 +1,4 @@
+
 const Joi = require("joi");
 const userService = require("../services/users.service");
 const { UserResponse } = require("../dto/userResponse");
@@ -63,6 +64,16 @@ const login = async (req, res) => {
   }
 };
 
+const getTransactions = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const transactions = await userService.getTransactionsByUserId(id);
+    res.status(200).json({ data: transactions.rows });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ error: error.message });
+  }
+};
 
 
-module.exports = { regist, login, getUserById };
+
+module.exports = { regist, login, getUserById, getTransactions };

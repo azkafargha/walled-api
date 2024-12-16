@@ -37,5 +37,16 @@ const regist = async (req) => {
 };
 
 
+const getTransactionsByUserId = async (id) => {
+  try {
+    const result = await pool.query("SELECT * FROM transactions where id = $1", [
+      id,
+    ]);
+    return result;
+  } catch (error) {
+    throw new Error("Something went wrong");
+  }
+};
 
-module.exports = { regist, findUserByEmail, findUserById };
+
+module.exports = { regist, findUserByEmail, findUserById, getTransactionsByUserId };
