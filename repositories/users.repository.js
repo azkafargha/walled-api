@@ -1,11 +1,14 @@
 const pool = require("../db/db");
 
 const findUserById = async (id) => {
+  
     try {
       const result = await pool.query("SELECT * FROM users where id = $1", [id]);
+      console.log(result.rows[0]);
       return result.rows[0];
     } catch (error) {
       throw new Error("Something went wrong");
+      
     }
   };
 
@@ -48,5 +51,30 @@ const getTransactionsByUserId = async (id) => {
   }
 };
 
+const updateUserBalance = async (id, newBalance) => {
+  
+  try {
+    const result = await pool.query(
+      "UPDATE users SET balance = $1 WHERE id = $2 RETURNING *",
+      [newBalance, id]
+    );
+    return result.rows[0];
+  } catch (error) {
+    throw new Error("Error updating user balance");
+  }
+};
 
-module.exports = { regist, findUserByEmail, findUserById, getTransactionsByUserId };
+const createTransaction = async (id, amount, description, type, source) => {
+  try {
+    const result = await pool.query(
+      `INSERT INTO transactions (id, amount, description, type, source) 
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [id, amount, description, type, source]
+    );
+    return result.rows[0];
+  } catch (error) {
+    throw new Error("Error creating transaction");
+  }
+};
+
+module.exports = { regist, findUserByEmail, findUserById, getTransactionsByUserId, updateUserBalance, createTransaction };

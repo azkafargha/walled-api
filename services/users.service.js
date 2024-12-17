@@ -53,4 +53,74 @@ const getTransactionsByUserId = async (id) => {
     throw error;
   }
 };
-module.exports = { regist, login, getUserById, getTransactionsByUserId };
+
+const transfer = async (senderId, receiverId, amount, notes) => {
+  try {
+    if (amount <= 0) {
+      throw new Error("Amount must be greater than zero");
+    }
+
+    const sender = await userRepository.findUserById(senderId);
+    const receiver = await userRepository.findUserById(receiverId);
+
+    if (!sender) {
+      throw new Error("Sender not found");
+    }
+    if (!receiver) {
+      throw new Error("Receiver not found");
+    }
+
+    if (sender.balance < amount) {
+      throw new Error("Insufficient balance");
+    }
+    if (senderId === receiverId) {
+      throw new Error("Berharap cepat kaya kah");
+    }
+
+    // Update balance for sender and receiver
+    await userRepository.updateUserBalance(
+      senderId,
+      parseInt(sender.balance, 10) - parseInt(amount, 10) // Pastikan konversi ke integer
+    );
+    await userRepository.updateUserBalance(
+      receiverId,
+      parseInt(receiver.balance, 10) + parseInt(amount, 10) // Pastikan konversi ke integer
+    );
+
+    // Create transactions for sender and receiver
+    const debitTransaction = await userRepository.createTransaction(
+      senderId,
+      amount,
+      notes || "Transfer to user",
+      "debit", // Manual type
+      `Transfer to user ID ${receiverId}`
+    );
+
+    const creditTransaction = await userRepository.createTransaction(
+      receiverId,
+      amount,
+      notes || "Transfer from user",
+      "credit", // Manual type
+      `Transfer from user ID ${senderId}`
+    );
+
+    return {
+      message: "Transfer successful",
+      transactions: {
+        debitTransaction,
+        creditTransaction,
+      },
+      senderBalance: sender.balance - amount,
+    };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+module.exports = {
+  regist,
+  login,
+  getUserById,
+  getTransactionsByUserId,
+  transfer,
+};

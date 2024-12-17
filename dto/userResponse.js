@@ -6,6 +6,7 @@ class UserResponse {
       this.fullname = user.fullname;
       this.email = user.email;
       this.balance = user.balance;
+      this.avatar_url = user.avatar_url;
     }
   }
   

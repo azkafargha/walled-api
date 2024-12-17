@@ -1,4 +1,3 @@
-
 const Joi = require("joi");
 const userService = require("../services/users.service");
 const { UserResponse } = require("../dto/userResponse");
@@ -74,6 +73,34 @@ const getTransactions = async (req, res) => {
   }
 };
 
+const transferController = async (req, res) => {
+  const { senderId, receiverId, amount, notes } = req.body;
+  const newamount = parseInt(req.body.amount, 10); // Konversi amount ke integer
 
+  if (!senderId || !receiverId || !newamount || isNaN(newamount) || newamount <= 0) {
+    return res.status(400).json({
+      message: "senderId, receiverId, and a valid amount are required",
+    });
+  }
 
-module.exports = { regist, login, getUserById, getTransactions };
+  try {
+    const result = await userService.transfer(
+      senderId,
+      receiverId,
+      newamount, // Gunakan amount yang sudah dikonversi
+      notes
+    );
+
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+module.exports = {
+  regist,
+  login,
+  getUserById,
+  getTransactions,
+  transferController,
+};
