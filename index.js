@@ -4,8 +4,9 @@ const bodyParser = require("body-parser");
 const userRouter = require("./routers/users.router");
 const app = express();
 const port = 8080;
+var cors = require('cors')
 
-
+app.use(cors())
 app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
